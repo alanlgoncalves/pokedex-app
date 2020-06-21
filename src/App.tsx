@@ -1,11 +1,14 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+
+import Routes from './routes';
+
+import {NavigationContainer} from '@react-navigation/native';
 
 const App = () => {
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Pokedex App</Text>
-    </View>
+    <NavigationContainer>
+      <Routes />
+    </NavigationContainer>
   );
 };
 
