@@ -1,5 +1,4 @@
 import styled from 'styled-components/native';
-import {Pokemon} from '../../pages/PokedexList';
 import {shade} from 'polished';
 
 interface MenuItemProps {
@@ -20,15 +19,6 @@ export const Container = styled.TouchableOpacity<MenuItemProps>`
   border-radius: 15px;
   margin: 5px;
   padding: 0px 10px;
-
-  shadow-color: rgba(0, 0, 0, 0.25);
-  shadow-opacity: 0.8;
-  elevation: 12;
-  shadow-radius: 15px;
-  shadow-offset : {
-    width: 1;
-    height: 13;
-  }
 `;
 
 export const PokeballImage = styled.Image`

@@ -1,17 +1,21 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  BackButton,
+  BackButtonIcon,
   Container,
   Header,
-  BackButton,
+  HeaderTitle,
   PageTitle,
   PokemonsList,
-  BackButtonIcon,
 } from './styles';
 import logo from '../../assets/images/background/pages/pokeball-background.png';
 import {PokemonBackgroundImage} from '../Main/styles';
 import PokemonItem from '../../components/PokemonItem';
 import api from '../../services/api';
 import {useNavigation} from '@react-navigation/native';
+import Animated, {Extrapolate} from 'react-native-reanimated';
+import {onScrollEvent} from 'react-native-redash';
+import {ActivityIndicator, FlatList, View} from 'react-native';
 
 interface PokemonListResponse {
   results: [
@@ -38,11 +42,33 @@ export interface Pokemon {
 const PokedexList: React.FC = () => {
   const navigation = useNavigation();
 
+  const HEADER_EXPANDED_HEIGHT = 120;
+  const HEADER_COLLAPSED_HEIGHT = 50;
+
+  const [scrollY, setScrollY] = useState(new Animated.Value(0));
+  const [loading, setLoading] = useState(false);
   const [pokemonListResponse, setPokemonListResponse] = useState(
     {} as PokemonListResponse,
   );
-
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+
+  const headerHeight = Animated.interpolate(scrollY, {
+    inputRange: [0, HEADER_EXPANDED_HEIGHT - HEADER_COLLAPSED_HEIGHT],
+    outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
+    extrapolate: Extrapolate.CLAMP,
+  });
+
+  const headerTitleOpacity = Animated.interpolate(scrollY, {
+    inputRange: [0, HEADER_EXPANDED_HEIGHT - HEADER_COLLAPSED_HEIGHT],
+    outputRange: [0, 1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+
+  const heroTitleOpacity = Animated.interpolate(scrollY, {
+    inputRange: [0, 10],
+    outputRange: [1, 0],
+    extrapolate: Extrapolate.CLAMP,
+  });
 
   const pad = useCallback((num: number, size: number): string => {
     let s = num + '';
@@ -50,7 +76,25 @@ const PokedexList: React.FC = () => {
     return s;
   }, []);
 
+  const renderLoadingFooter = useCallback(() => {
+    if (!loading) {
+      return <View />;
+    }
+
+    return (
+      <ActivityIndicator
+        style={{marginBottom: 20, marginTop: 20, minHeight: 70}}
+      />
+    );
+  }, [loading]);
+
+  const handleGoBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   const loadNextPokemons = useCallback(() => {
+    setLoading(true);
+
     api
       .get<PokemonListResponse>('https://pokeapi.co/api/v2/pokemon', {
         params: {
@@ -93,13 +137,10 @@ const PokedexList: React.FC = () => {
 
       Promise.all(promises).then((items) => {
         setPokemons([...pokemons, ...items]);
+        setLoading(false);
       });
     }
   }, [pokemonListResponse]);
-
-  const handleGoBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
 
   useEffect(() => {
     loadNextPokemons();
@@ -109,18 +150,28 @@ const PokedexList: React.FC = () => {
     <Container>
       <PokemonBackgroundImage source={logo} />
 
-      <Header>
-        <BackButton onPress={handleGoBack}>
-          <BackButtonIcon name="arrow-left" size={18} />
-        </BackButton>
-      </Header>
+      <Animated.View style={{height: headerHeight}}>
+        <Header>
+          <BackButton onPress={handleGoBack}>
+            <BackButtonIcon name="arrow-left" size={18} />
+          </BackButton>
+
+          <Animated.View style={[{opacity: headerTitleOpacity}]}>
+            <HeaderTitle>Pokedex</HeaderTitle>
+          </Animated.View>
+        </Header>
+
+        <Animated.View style={{opacity: heroTitleOpacity}}>
+          <PageTitle>Pokedex</PageTitle>
+        </Animated.View>
+      </Animated.View>
 
       <PokemonsList
         data={pokemons}
         numColumns={2}
-        ListHeaderComponent={<PageTitle>Pokedex</PageTitle>}
-        keyExtractor={(pokemon) => pokemon.id}
-        renderItem={({item: pokemon}) => (
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(pokemon: Pokemon) => pokemon.id}
+        renderItem={({item: pokemon}: {item: Pokemon}) => (
           <PokemonItem
             id={pokemon.id}
             name={pokemon.name}
@@ -128,8 +179,11 @@ const PokedexList: React.FC = () => {
             types={pokemon.types}
           />
         )}
+        ListFooterComponent={renderLoadingFooter}
         onEndReached={loadNextPokemons}
         onEndReachedThreshold={0.3}
+        onScroll={onScrollEvent({y: scrollY})}
+        scrollEventThrottle={10}
       />
     </Container>
   );

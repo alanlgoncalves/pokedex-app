@@ -13,14 +13,6 @@ export const Container = styled.TouchableOpacity<MenuItemProps>`
   background: ${(props) => props.color};
   border-radius: 15px;
   margin: 5px;
-  shadow-color: rgba(0, 0, 0, 0.15);
-  shadow-opacity: 0.8;
-  elevation: 12;
-  shadow-radius: 15px;
-  shadow-offset : {
-    width: 1;
-    height: 13;
-  }
 `;
 
 export const MenuText = styled.Text`

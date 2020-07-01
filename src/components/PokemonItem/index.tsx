@@ -51,7 +51,7 @@ const PokemonItem: React.FC<PokemonItemProps> = ({
       <PokemonInfo>
         <PokemonTypes>
           {types.map((type) => (
-            <PokemonType color={typeConfiguration.color}>
+            <PokemonType>
               <PokemonTypeText>{type}</PokemonTypeText>
             </PokemonType>
           ))}
