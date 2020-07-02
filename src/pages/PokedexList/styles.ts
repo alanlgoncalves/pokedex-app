@@ -7,7 +7,7 @@ import {FlatList} from 'react-native';
 export const Container = styled.View`
   flex: 1;
   background-color: #e5e5e5;
-  padding-top: ${isIphoneX() ? getStatusBarHeight() + 30 : 0}px;
+  padding: ${isIphoneX() ? getStatusBarHeight() + 30 : 20}px 20px 0;
 `;
 
 export const PokemonBackgroundImage = styled.Image`
@@ -20,13 +20,12 @@ export const Header = styled.View`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  height: 25px;
 `;
 
 export const BackButton = styled.TouchableOpacity`
   position: absolute;
-  left: 20px;
-
-  color: #303943;
+  left: 0px;
   font-size: 20px;
 `;
 
@@ -45,9 +44,8 @@ export const PageTitle = styled(Animated.Text)`
   font-size: 30px;
   line-height: 38px;
   margin-top: 34px;
-  margin-left: 20px;
 `;
 
-export const PokemonsList = styled(Animated.createAnimatedComponent(FlatList))`
-  padding: 10px 5px;
-`;
+export const PokemonsList = styled(
+  Animated.createAnimatedComponent(FlatList),
+)``;

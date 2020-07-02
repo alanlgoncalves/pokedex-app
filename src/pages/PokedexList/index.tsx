@@ -15,7 +15,7 @@ import api from '../../services/api';
 import {useNavigation} from '@react-navigation/native';
 import Animated, {Extrapolate} from 'react-native-reanimated';
 import {onScrollEvent} from 'react-native-redash';
-import {ActivityIndicator, FlatList, View} from 'react-native';
+import {ActivityIndicator, View} from 'react-native';
 
 interface PokemonListResponse {
   results: [
@@ -103,7 +103,6 @@ const PokedexList: React.FC = () => {
         },
       })
       .then((response) => {
-        console.log(JSON.stringify(response.data));
         setPokemonListResponse(response.data);
       });
   }, [pokemons]);
@@ -150,7 +149,10 @@ const PokedexList: React.FC = () => {
     <Container>
       <PokemonBackgroundImage source={logo} />
 
-      <Animated.View style={{height: headerHeight}}>
+      <Animated.View
+        style={{
+          height: headerHeight,
+        }}>
         <Header>
           <BackButton onPress={handleGoBack}>
             <BackButtonIcon name="arrow-left" size={18} />
@@ -177,13 +179,16 @@ const PokedexList: React.FC = () => {
             name={pokemon.name}
             image={pokemon.image}
             types={pokemon.types}
+            onPress={() => {
+              navigation.navigate('PokemonDetails', {id: pokemon.id});
+            }}
           />
         )}
         ListFooterComponent={renderLoadingFooter}
         onEndReached={loadNextPokemons}
         onEndReachedThreshold={0.3}
         onScroll={onScrollEvent({y: scrollY})}
-        scrollEventThrottle={10}
+        scrollEventThrottle={1}
       />
     </Container>
   );
